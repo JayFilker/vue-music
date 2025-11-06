@@ -6,6 +6,17 @@ export function fetchProfile(key) {
   const query = encodeURIComponent(key)
   return get(`/search?q=${query}&type=${types}&limit=20`)
 }
+export function Rank(key) {
+  const types = 'track'
+  const query = encodeURIComponent(key)
+  return get(`/search?q=${query}&type=${types}&limit=20`)
+}
+
+export function RankByNation(key) {
+  const types = 'track'
+  return get(`/search?q=label:"${key}"&type=${types}&limit=10&market=${key}`)
+}
+
 
 // 搜索详情（单一类型，支持分页）
 export function getSearchContent(type, key, offset = 0) {

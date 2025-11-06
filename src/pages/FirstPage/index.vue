@@ -10,6 +10,7 @@ import { getUserSavedAlbums, getUserPlaylists } from '@/api/library'
 import { useMusicStore } from '@/stores/music'
 import AlbumCard from '@/components/content/AlbumCard.vue'
 import SvgIcon from '@/components/common/SvgIcon.vue'
+import RankFor from '@/components/content/RankFor.vue'
 
 const { t } = useI18n()
 const musicStore = useMusicStore()
@@ -253,6 +254,7 @@ const handleArtistPlay = async (e, artistId, index) => {
         </div>
       </div>
     </section>
+      <RankFor />
   </div>
 </template>
 
