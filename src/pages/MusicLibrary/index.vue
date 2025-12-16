@@ -5,10 +5,8 @@ import { useQuery } from '@tanstack/vue-query'
 import { getUserSavedTracks, getUserSavedAlbums, getUserPlaylists } from '@/api/library'
 import AlbumCard from '@/components/content/AlbumCard.vue'
 import TrackList from '@/components/content/TrackList.vue'
-
 const { t } = useI18n()
 const activeTab = ref('tracks')
-
 // 获取收藏的歌曲
 const { data: savedTracks, isLoading: isLoadingTracks } = useQuery({
   queryKey: ['savedTracks'],
@@ -19,7 +17,6 @@ const { data: savedTracks, isLoading: isLoadingTracks } = useQuery({
     console.error('Failed to load saved tracks:', error)
   }
 })
-
 // 获取收藏的专辑
 const { data: savedAlbums, isLoading: isLoadingAlbums } = useQuery({
   queryKey: ['savedAlbums'],
@@ -30,7 +27,6 @@ const { data: savedAlbums, isLoading: isLoadingAlbums } = useQuery({
     console.error('Failed to load saved albums:', error)
   }
 })
-
 // 获取播放列表
 const { data: playlists, isLoading: isLoadingPlaylists } = useQuery({
   queryKey: ['userPlaylists'],
@@ -41,27 +37,22 @@ const { data: playlists, isLoading: isLoadingPlaylists } = useQuery({
     console.error('Failed to load playlists:', error)
   }
 })
-
 const tracks = computed(() => {
   // 自定义后端返回的格式是 { songs: [...] }
   return savedTracks.value?.songs || []
 })
-
 const albums = computed(() => {
   // 自定义后端返回的格式是 { songs: [...] }
   return savedAlbums.value?.songs || []
 })
-
 const userPlaylists = computed(() => {
   // 自定义后端返回的格式是 { songs: [...] }
   return playlists.value?.songs || []
 })
 </script>
-
 <template>
   <div class="music-library">
     <h1 class="page-title">{{ t('音乐库') }}</h1>
-
     <!-- 标签切换 -->
     <div class="tabs">
       <button
@@ -83,7 +74,6 @@ const userPlaylists = computed(() => {
         {{ t('播放列表') }}
       </button>
     </div>
-
     <!-- 内容区域 -->
     <div class="content">
       <!-- 歌曲 -->
@@ -94,7 +84,6 @@ const userPlaylists = computed(() => {
         </div>
         <TrackList v-else :tracks="tracks" :liked-tracks="tracks" />
       </div>
-
       <!-- 专辑 -->
       <div v-if="activeTab === 'albums'" class="albums-section">
         <div v-if="isLoadingAlbums" class="loading">{{ t('加载中') }}...</div>
@@ -111,7 +100,6 @@ const userPlaylists = computed(() => {
           />
         </div>
       </div>
-
       <!-- 播放列表 -->
       <div v-if="activeTab === 'playlists'" class="playlists-section">
         <div v-if="isLoadingPlaylists" class="loading">{{ t('加载中') }}...</div>
@@ -131,26 +119,22 @@ const userPlaylists = computed(() => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .music-library {
   padding: 20px 0;
 }
-
 .page-title {
   font-size: 36px;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: 30px;
 }
-
 .tabs {
   display: flex;
   gap: 12px;
   margin-bottom: 30px;
   border-bottom: 1px solid var(--color-secondary-bg);
 }
-
 .tab {
   padding: 12px 20px;
   background: transparent;
@@ -162,38 +146,31 @@ const userPlaylists = computed(() => {
   border-bottom: 2px solid transparent;
   transition: all 0.2s;
 }
-
 .tab:hover {
   color: var(--color-text);
 }
-
 .tab.active {
   color: var(--color-primary);
   border-bottom-color: var(--color-primary);
 }
-
 .loading {
   text-align: center;
   padding: 60px 20px;
   color: var(--color-secondary);
 }
-
 .empty {
   text-align: center;
   padding: 100px 20px;
 }
-
 .empty p {
   font-size: 16px;
   color: var(--color-secondary);
 }
-
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
 }
-
 @media (max-width: 768px) {
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

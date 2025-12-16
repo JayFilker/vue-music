@@ -1,8 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-
 const isSmall = ref(false)
-
 const logo = [
   {
     className: 'button minimize codicon codicon-chrome-minimize',
@@ -17,12 +15,10 @@ const logo = [
     methodName: 'close'
   }
 ]
-
 const handleWindowControl = (methodName, index) => {
   if (index === 1) {
     isSmall.value = !isSmall.value
   }
-
   try {
     const ipcRenderer = window.require?.('electron')?.ipcRenderer
     ipcRenderer?.send(methodName)
@@ -31,7 +27,6 @@ const handleWindowControl = (methodName, index) => {
   }
 }
 </script>
-
 <template>
   <div class="win32-titlebar">
     <div class="title">MyYesPlayMusic</div>
@@ -45,7 +40,6 @@ const handleWindowControl = (methodName, index) => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .win32-titlebar {
   height: 38px;
@@ -59,18 +53,15 @@ const handleWindowControl = (methodName, index) => {
   z-index: 1000;
   -webkit-app-region: drag;
 }
-
 .title {
   margin-left: 8px;
   font-size: 12px;
   color: var(--color-text);
 }
-
 .controls {
   display: flex;
   -webkit-app-region: no-drag;
 }
-
 .button {
   width: 46px;
   height: 32px;
@@ -80,11 +71,9 @@ const handleWindowControl = (methodName, index) => {
   cursor: pointer;
   color: var(--color-text);
 }
-
 .button:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
 .button.close:hover {
   background-color: #e81123;
   color: white;

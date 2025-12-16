@@ -1,10 +1,8 @@
 <script setup>
-
 import { useQuery } from '@tanstack/vue-query'
 import { Rank,RankByNation } from '@/api/search.js'
 import { useI18n } from 'vue-i18n'
 import RankC from '@/components/content/RankC.vue'
-
 const {
     data: rankUK,
     isLoading: isLoadingUK,
@@ -72,11 +70,8 @@ const des=[
         des:"每天更新"
     },
 ]
-
 </script>
-
 <template>
-
     <section class="section">
         <div class="section-header">
             <h2>{{ t('排行榜') }}</h2>
@@ -95,88 +90,73 @@ const des=[
         </div>
     </section>
 </template>
-
 <style scoped>
 .first-page {
     padding: 20px 0;
 }
-
 .page-title {
     font-size: 36px;
     font-weight: 700;
     color: var(--color-text);
     margin-bottom: 30px;
 }
-
 .section {
     margin-bottom: 50px;
 }
-
 .section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
 }
-
 .section-header h2 {
     font-size: 24px;
     font-weight: 700;
     color: var(--color-text);
 }
-
 .view-all {
     font-size: 14px;
     color: var(--color-secondary);
     text-decoration: none;
     transition: color 0.2s;
 }
-
 .view-all:hover {
     color: var(--color-primary);
 }
-
 .loading {
     padding: 40px;
     text-align: center;
     color: var(--color-secondary);
 }
-
 .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 20px;
 }
-
 @media (max-width: 768px) {
     .grid {
         grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
         gap: 16px;
     }
 }
-
 .artist-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 24px;
 }
-
 @media (max-width: 768px) {
     .artist-grid {
         grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     }
 }
-
 .artist-card {
     text-align: center;
     cursor: pointer;
     transition: transform 0.2s;
 }
-
 .artist-card:hover {
     transform: translateY(-4px);
 }
-
 .artist-cover {
     position: relative;
     aspect-ratio: 1;
@@ -185,7 +165,6 @@ const des=[
     background: var(--color-secondary-bg);
     margin-bottom: 12px;
 }
-
 .artist-cover img {
     position: relative;
     width: 100%;
@@ -193,7 +172,6 @@ const des=[
     object-fit: cover;
     z-index: 1;
 }
-
 .shade {
     position: absolute;
     top: 0;
@@ -207,7 +185,6 @@ const des=[
     z-index: 2;
     pointer-events: none;
 }
-
 .play-button {
     display: flex;
     justify-content: center;
@@ -224,15 +201,12 @@ const des=[
     animation: fadeIn 0.2s ease-in;
     pointer-events: auto;
 }
-
 .play-button:hover {
     background: rgba(255, 255, 255, 0.28);
 }
-
 .play-button:active {
     transform: scale(0.94);
 }
-
 .shadow {
     position: absolute;
     top: 12px;
@@ -247,11 +221,9 @@ const des=[
     opacity: 0;
     transition: opacity 0.3s;
 }
-
 .shadow.visible {
     opacity: 1;
 }
-
 .artist-name {
     font-size: 14px;
     font-weight: 600;
@@ -260,7 +232,6 @@ const des=[
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 @keyframes fadeIn {
     from {
         opacity: 0;

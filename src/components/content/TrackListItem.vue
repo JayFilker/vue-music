@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import SvgIcon from '../common/SvgIcon.vue'
 import LikeButton from '../common/LikeButton.vue'
-
 const props = defineProps({
   track: {
     type: Object,
@@ -25,34 +24,27 @@ const props = defineProps({
     default: false
   }
 })
-
 const emit = defineEmits(['click'])
-
 const showIcon = ref(false)
-
 // 格式化时长
 const formatDuration = (ms) => {
   const minutes = Math.floor(ms / 60000)
   const seconds = Math.floor((ms % 60000) / 1000)
   return `${minutes}:${seconds.toString().padStart(2, '0')}`
 }
-
 // 格式化艺术家
 const formatArtists = (artists) => {
   if (!artists || !Array.isArray(artists)) return ''
   return artists.map(artist => artist.name).join(', ')
 }
-
 const handleClick = () => {
   emit('click', props.track, props.index)
 }
-
 const handlePlayButtonClick = (e) => {
   e.stopPropagation() // 阻止事件冒泡
   emit('click', props.track, props.index)
 }
 </script>
-
 <template>
   <div
     :class="['track-item', { playing: isPlaying, focus: showIcon }]"
@@ -89,7 +81,6 @@ const handlePlayButtonClick = (e) => {
         </SvgIcon>
       </button>
     </div>
-
     <div class="title-col">
       <div class="title">{{ track.name }}</div>
       <div class="artist">{{ formatArtists(track.artists) }}</div>
@@ -102,7 +93,6 @@ const handlePlayButtonClick = (e) => {
     <div class="duration-col">
       {{ formatDuration(track.duration_ms) }}
     </div>
-
     <div class="actions-col">
       <LikeButton
         :item="track"
@@ -113,7 +103,6 @@ const handlePlayButtonClick = (e) => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .track-item {
   display: grid;
@@ -125,28 +114,23 @@ const handlePlayButtonClick = (e) => {
   transition: background-color 0.2s;
   align-items: center;
 }
-
 .track-item:hover,
 .track-item.focus {
   background-color: var(--color-secondary-bg-for-transparent);
 }
-
 .track-item.playing {
   color: var(--color-primary);
 }
-
 .index-col {
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
 }
-
 .track-number {
   font-size: 14px;
   color: var(--color-secondary);
 }
-
 .play-button,
 .playing-icon {
   background: transparent;
@@ -158,24 +142,20 @@ const handlePlayButtonClick = (e) => {
   align-items: center;
   justify-content: center;
 }
-
 .play-button :deep(.svg-icon),
 .playing-icon :deep(.svg-icon) {
   width: 16px;
   height: 16px;
 }
-
 .play-button:hover {
   transform: scale(1.1);
 }
-
 .title-col {
   display: flex;
   flex-direction: column;
   gap: 4px;
   min-width: 0;
 }
-
 .title {
   font-size: 14px;
   font-weight: 500;
@@ -184,7 +164,6 @@ const handlePlayButtonClick = (e) => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .artist {
   font-size: 12px;
   color: var(--color-secondary);
@@ -192,7 +171,6 @@ const handlePlayButtonClick = (e) => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .album-col {
   font-size: 14px;
   color: var(--color-secondary);
@@ -200,24 +178,20 @@ const handlePlayButtonClick = (e) => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .duration-col {
   font-size: 14px;
   color: var(--color-secondary);
   text-align: right;
 }
-
 .actions-col {
   display: flex;
   justify-content: flex-end;
   align-items: center;
 }
-
 @media (max-width: 768px) {
   .track-item {
     grid-template-columns: 40px 1fr 60px 40px;
   }
-
   .album-col {
     display: none;
   }

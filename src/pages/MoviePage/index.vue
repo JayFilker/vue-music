@@ -7,22 +7,18 @@ import { getMovies, getMovieInfo } from '@/api/movie'
 import MovieList from '@/components/content/MovieList.vue'
 import ButtonIcon from '@/components/common/ButtonIcon.vue'
 import SvgIcon from '@/components/common/SvgIcon.vue'
-
 const route = useRoute()
 const { t } = useI18n()
-
 const videoRef = ref(null)
 const showPlayButton = ref(true)
 const videoTitle = ref(route.query.title || '')
 const searchKey = ref(route.query.q || '')
-
 // 监听路由变化
 watch(() => route.query.title, (newTitle) => {
   if (newTitle) {
     videoTitle.value = newTitle
   }
 }, { immediate: true })
-
 // 获取所有视频
 const { data: allMovies } = useQuery({
   queryKey: ['movies'],
@@ -30,14 +26,11 @@ const { data: allMovies } = useQuery({
   staleTime: 5 * 60 * 1000,
   retry: false
 })
-
 // 当前视频信息
 const currentMovie = computed(() => {
   if (!allMovies.value || !videoTitle.value) return null
-
   const movie = allMovies.value.find(v => v.title === videoTitle.value)
   if (!movie) return null
-
   const parts = movie.title.split('-')
   return {
     ...movie,
@@ -46,7 +39,6 @@ const currentMovie = computed(() => {
     fullTitle: movie.title
   }
 })
-
 // 获取当前视频详细信息
 const { data: movieInfo } = useQuery({
   queryKey: ['movieInfo', computed(() => currentMovie.value?.key)],
@@ -55,36 +47,30 @@ const { data: movieInfo } = useQuery({
   staleTime: 5 * 60 * 1000,
   retry: false
 })
-
 // 其他视频（排除当前视频）
 const otherMovies = computed(() => {
   if (!allMovies.value || !videoTitle.value) return []
   return allMovies.value.filter(v => v.title !== videoTitle.value)
 })
-
 // 视频 URL
 const videoUrl = computed(() => {
   if (!currentMovie.value?.videoUrl) return ''
   return `http://${encodeURI(currentMovie.value.videoUrl)}`
 })
-
 // 处理播放按钮点击
 const handlePlay = () => {
   if (videoRef.value) {
     videoRef.value.play()
   }
 }
-
 // 监听视频播放状态
 const handleVideoPlay = () => {
   showPlayButton.value = false
 }
-
 const handleVideoPause = () => {
   showPlayButton.value = true
 }
 </script>
-
 <template>
   <div class="movie-page">
     <div v-if="currentMovie" class="content">
@@ -102,7 +88,6 @@ const handleVideoPause = () => {
           >
             您的浏览器不支持视频播放
           </video>
-
           <!-- 自定义播放按钮 -->
           <button
             v-show="showPlayButton"
@@ -119,7 +104,6 @@ const handleVideoPause = () => {
             </SvgIcon>
           </button>
         </div>
-
         <!-- 视频信息 -->
         <div class="video-info">
           <div class="title-section">
@@ -141,7 +125,6 @@ const handleVideoPause = () => {
               </ButtonIcon>
             </div>
           </div>
-
           <div class="meta-info">
             <span v-if="movieInfo?.['x-qn-meta']?.views" class="views">
               {{ movieInfo['x-qn-meta'].views }} {{ t('观看次数') }}
@@ -152,36 +135,30 @@ const handleVideoPause = () => {
           </div>
         </div>
       </div>
-
       <!-- 更多视频 -->
       <div v-if="otherMovies.length > 0" class="more-videos">
         <h2 class="section-title">{{ t('更多视频') }}</h2>
         <MovieList :movies="otherMovies" :search-key="searchKey" :limit="0" />
       </div>
     </div>
-
     <!-- 未找到视频 -->
     <div v-else class="not-found">
       <p>{{ t('页面未找到，请返回上一页') }}</p>
     </div>
   </div>
 </template>
-
 <style scoped>
 .movie-page {
   padding: 20px 0;
   color: var(--color-text);
 }
-
 .content {
   max-width: 1400px;
   margin: 0 auto;
 }
-
 .video-container {
   margin-bottom: 50px;
 }
-
 .video-wrapper {
   position: relative;
   background: #000;
@@ -189,13 +166,11 @@ const handleVideoPause = () => {
   overflow: hidden;
   margin-bottom: 20px;
 }
-
 .video-player {
   width: 100%;
   display: block;
   aspect-ratio: 16 / 9;
 }
-
 .play-overlay-button {
   position: absolute;
   top: 50%;
@@ -214,23 +189,19 @@ const handleVideoPause = () => {
   transition: all 0.3s;
   z-index: 10;
 }
-
 .play-overlay-button:hover {
   transform: translate(-50%, -50%) scale(1.1);
   background: var(--color-primary);
   filter: brightness(1.1);
 }
-
 .play-overlay-button :deep(.svg-icon) {
   width: 32px;
   height: 32px;
   margin-left: 4px;
 }
-
 .video-info {
   padding: 0 10px;
 }
-
 .title-section {
   display: flex;
   justify-content: space-between;
@@ -238,7 +209,6 @@ const handleVideoPause = () => {
   margin-bottom: 12px;
   gap: 20px;
 }
-
 .video-title {
   font-size: 24px;
   font-weight: 700;
@@ -246,74 +216,60 @@ const handleVideoPause = () => {
   margin: 0;
   line-height: 1.4;
 }
-
 .artist {
   color: var(--color-text);
   cursor: pointer;
   transition: color 0.2s;
 }
-
 .artist:hover {
   color: var(--color-primary);
 }
-
 .separator {
   color: var(--color-secondary);
   margin: 0 8px;
 }
-
 .name {
   color: var(--color-text);
 }
-
 .action-buttons {
   display: flex;
   gap: 12px;
   flex-shrink: 0;
 }
-
 .meta-info {
   font-size: 14px;
   color: var(--color-secondary);
 }
-
 .views,
 .date {
   margin-right: 8px;
 }
-
 .more-videos {
   margin-top: 60px;
 }
-
 .section-title {
   font-size: 24px;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: 24px;
 }
-
 .not-found {
   text-align: center;
   padding: 100px 20px;
   font-size: 20px;
   color: var(--color-secondary);
 }
-
 @media (max-width: 768px) {
   .title-section {
     flex-direction: column;
   }
-
   .video-title {
     font-size: 20px;
   }
-
   .play-overlay-button {
     width: 60px;
     height: 60px;
   }
-
   .play-overlay-button :deep(.svg-icon) {
     width: 24px;
     height: 24px;

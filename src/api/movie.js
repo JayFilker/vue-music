@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // 自定义后端服务器 URL
-const CUSTOM_API_BASE = 'https://musicplayernodejs-production.up.railway.app'
+const CUSTOM_API_BASE = 'https://blog-api-production-3657.up.railway.app'
 // const CUSTOM_API_BASE = 'http://localhost:3000'
 
 // 创建带认证的 axios 实例

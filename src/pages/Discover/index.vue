@@ -7,19 +7,15 @@ import { firstFetchProfile } from '@/api/search'
 import { getUserSavedAlbums } from '@/api/library'
 import AlbumCard from '@/components/content/AlbumCard.vue'
 import { quickCategories, detailedCategories } from './discoverCategories'
-
 const route = useRoute()
 const { t } = useI18n()
-
 // 状态管理
 const showDetailedPanel = ref(false)
 const activeCategory = ref('全部')
 const offset = ref(0)
 const allItems = ref([])
-
 // 从 URL 获取分类参数
 const urlCategory = computed(() => route.query.key || '')
-
 // 监听 URL 参数变化
 watch(urlCategory, (newCategory) => {
   if (newCategory && quickCategories.includes(newCategory)) {
@@ -40,7 +36,6 @@ watch(urlCategory, (newCategory) => {
     }
   }
 }, { immediate: true })
-
 // API 查询关键字转换
 const apiKeyword = computed(() => {
   if (activeCategory.value === '全部') return ''
@@ -48,7 +43,6 @@ const apiKeyword = computed(() => {
   if (activeCategory.value === '新专辑') return 'new'
   return activeCategory.value
 })
-
 // 获取数据
 const { data, isLoading, isFetching } = useQuery({
   queryKey: ['discover', apiKeyword, offset],  // 直接使用 ref，不要 .value
@@ -61,7 +55,6 @@ const { data, isLoading, isFetching } = useQuery({
   },
   staleTime: 5 * 60 * 1000
 })
-
 // 获取收藏的专辑
 const { data: savedAlbums } = useQuery({
   queryKey: ['savedAlbums'],
@@ -72,20 +65,17 @@ const { data: savedAlbums } = useQuery({
     console.warn('Failed to load saved albums:', error)
   }
 })
-
 // 检查专辑是否被收藏
 const isAlbumLiked = (albumId) => {
   const albums = savedAlbums.value?.songs || []
   return Array.isArray(albums) && albums.some(a => a.id === albumId)
 }
-
 // 监听数据变化，合并到列表中
 watch([data, isLoading, offset], ([newData, loading, newOffset]) => {
   // 如果正在加载中，不做任何操作，避免误清空数据
   if (loading) {
     return
   }
-
   // 如果没有数据
   if (!newData?.albums?.items || newData.albums.items.length === 0) {
     // 只有在首次加载（offset为0）且确实加载完成时才清空
@@ -94,7 +84,6 @@ watch([data, isLoading, offset], ([newData, loading, newOffset]) => {
     }
     return
   }
-
   if (newOffset === 0) {
     // 首次加载或切换分类，直接替换
     allItems.value = newData.albums.items
@@ -106,47 +95,38 @@ watch([data, isLoading, offset], ([newData, loading, newOffset]) => {
     allItems.value = [...allItems.value, ...newItems]
   }
 }, { immediate: false })
-
 // 格式化数据
 const albums = computed(() => allItems.value)
-
 // 处理分类点击
 const handleCategoryClick = (category) => {
   if (activeCategory.value === category) return // 如果是同一分类，不做任何操作
-
   activeCategory.value = category
   showDetailedPanel.value = false
   offset.value = 0
   // 不要立即清空 allItems，让 watch 在数据到达后再更新
   // allItems.value = []
 }
-
 // 处理详细分类点击
 const handleDetailedCategoryClick = (category) => {
   if (activeCategory.value === category) return // 如果是同一分类，不做任何操作
-
   activeCategory.value = category
   showDetailedPanel.value = false
   offset.value = 0
   // 不要立即清空 allItems，让 watch 在数据到达后再更新
   // allItems.value = []
 }
-
 // 加载更多
 const loadMore = () => {
   offset.value += 50
 }
-
 // 切换详细分类面板
 const toggleDetailedPanel = () => {
   showDetailedPanel.value = !showDetailedPanel.value
 }
 </script>
-
 <template>
   <div class="discover-page">
     <h1 class="page-title">{{ t('发现') }}</h1>
-
     <!-- 快速分类按钮 -->
     <div class="quick-categories">
       <button
@@ -172,7 +152,6 @@ const toggleDetailedPanel = () => {
         </svg>
       </button>
     </div>
-
     <!-- 详细分类面板 -->
     <transition name="slide-down">
       <div v-if="showDetailedPanel" class="detailed-panel">
@@ -195,19 +174,16 @@ const toggleDetailedPanel = () => {
         </div>
       </div>
     </transition>
-
     <!-- 加载状态 -->
     <div v-if="isLoading && albums.length === 0" class="loading">
       {{ t('加载中') }}...
     </div>
-
     <!-- 专辑网格 -->
     <div v-else-if="albums.length > 0" class="albums-section">
       <!-- 如果正在加载新分类的数据，显示半透明遮罩 -->
       <div v-if="isLoading && offset === 0" class="loading-overlay">
         <div class="loading-spinner">{{ t('加载中') }}...</div>
       </div>
-
       <div class="albums-grid">
         <AlbumCard
           v-for="album in albums"
@@ -217,7 +193,6 @@ const toggleDetailedPanel = () => {
           :is-liked="isAlbumLiked(album.id)"
         />
       </div>
-
       <!-- 加载更多按钮 -->
       <div class="load-more-section">
         <button
@@ -230,26 +205,22 @@ const toggleDetailedPanel = () => {
         </button>
       </div>
     </div>
-
     <!-- 空状态 -->
     <div v-else-if="!isLoading" class="empty-state">
       <p>{{ t('暂无数据') }}</p>
     </div>
   </div>
 </template>
-
 <style scoped>
 .discover-page {
   padding: 20px 0;
 }
-
 .page-title {
   font-size: 36px;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: 30px;
 }
-
 /* 快速分类按钮 */
 .quick-categories {
   display: flex;
@@ -257,7 +228,6 @@ const toggleDetailedPanel = () => {
   gap: 12px;
   margin-bottom: 24px;
 }
-
 .category-btn {
   padding: 8px 20px;
   background: var(--color-secondary-bg-for-transparent);
@@ -270,33 +240,27 @@ const toggleDetailedPanel = () => {
   transition: all 0.2s;
   white-space: nowrap;
 }
-
 .category-btn:hover {
   background: var(--color-primary-bg-for-transparent);
   border-color: var(--color-primary);
 }
-
 .category-btn.active {
   background: var(--color-primary);
   color: white;
 }
-
 .more-btn {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-
 .arrow-icon {
   width: 18px;
   height: 18px;
   transition: transform 0.3s;
 }
-
 .arrow-icon.rotate {
   transform: rotate(180deg);
 }
-
 /* 详细分类面板 */
 .detailed-panel {
   background: var(--color-secondary-bg);
@@ -304,28 +268,23 @@ const toggleDetailedPanel = () => {
   padding: 24px;
   margin-bottom: 32px;
 }
-
 .category-group {
   margin-bottom: 20px;
 }
-
 .category-group:last-child {
   margin-bottom: 0;
 }
-
 .group-title {
   font-size: 14px;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: 12px;
 }
-
 .group-items {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-
 .detail-category-btn {
   padding: 6px 16px;
   background: var(--color-secondary-bg-for-transparent);
@@ -336,18 +295,15 @@ const toggleDetailedPanel = () => {
   cursor: pointer;
   transition: all 0.2s;
 }
-
 .detail-category-btn:hover {
   color: var(--color-text);
   background: var(--color-primary-bg-for-transparent);
 }
-
 .detail-category-btn.active {
   background: var(--color-primary);
   color: white;
   border-color: var(--color-primary);
 }
-
 /* 过渡动画 */
 .slide-down-enter-active,
 .slide-down-leave-active {
@@ -355,20 +311,17 @@ const toggleDetailedPanel = () => {
   max-height: 800px;
   overflow: hidden;
 }
-
 .slide-down-enter-from,
 .slide-down-leave-to {
   opacity: 0;
   max-height: 0;
   transform: translateY(-20px);
 }
-
 /* 专辑网格 */
 .albums-section {
   margin-top: 32px;
   position: relative;
 }
-
 .loading-overlay {
   position: absolute;
   top: 0;
@@ -383,7 +336,6 @@ const toggleDetailedPanel = () => {
   z-index: 10;
   border-radius: 12px;
 }
-
 .loading-spinner {
   background: var(--color-secondary-bg);
   padding: 16px 32px;
@@ -393,28 +345,24 @@ const toggleDetailedPanel = () => {
   font-weight: 600;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-
 .albums-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
   margin-bottom: 40px;
 }
-
 @media (max-width: 768px) {
   .albums-grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 16px;
   }
 }
-
 /* 加载更多 */
 .load-more-section {
   display: flex;
   justify-content: center;
   padding: 20px 0;
 }
-
 .load-more-btn {
   padding: 12px 40px;
   background: var(--color-secondary-bg);
@@ -426,18 +374,15 @@ const toggleDetailedPanel = () => {
   cursor: pointer;
   transition: all 0.2s;
 }
-
 .load-more-btn:hover:not(:disabled) {
   background: var(--color-primary-bg-for-transparent);
   border-color: var(--color-primary);
   transform: translateY(-2px);
 }
-
 .load-more-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
-
 /* 加载和空状态 */
 .loading,
 .empty-state {
@@ -446,13 +391,11 @@ const toggleDetailedPanel = () => {
   color: var(--color-secondary);
   font-size: 16px;
 }
-
 /* 响应式 */
 @media (max-width: 768px) {
   .page-title {
     font-size: 28px;
   }
-
   .detailed-panel {
     padding: 16px;
   }

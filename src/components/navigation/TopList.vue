@@ -6,16 +6,13 @@ import ButtonIcon from '../common/ButtonIcon.vue'
 import SvgIcon from '../common/SvgIcon.vue'
 import TopSpace from './TopSpace.vue'
 import ContextMenu from './ContextMenu.vue'
-
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
-
 const act = ref(false)
 const check = ref([true, false, false])
 const show = ref(false)
 const keywords = ref('')
-
 const pageList = [
   {
     name: '首页',
@@ -30,42 +27,33 @@ const pageList = [
     link: '/musicLibrary'
   }
 ]
-
 // 监听路由变化更新选中状态
 watch(() => route.path, (currentPath) => {
   const newCheckState = pageList.map(page => page.link === currentPath)
-
   // 如果没有匹配的路径，默认选中第一个
   if (!newCheckState.includes(true)) {
     newCheckState[0] = true
   }
-
   check.value = newCheckState
 }, { immediate: true })
-
 // 点击外部关闭菜单
 const handleClickOutside = (e) => {
   if (show.value && !e.target.closest('.context-menu') && !e.target.closest('.avatar')) {
     show.value = false
   }
 }
-
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
-
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
-
 const goBack = () => {
   router.back()
 }
-
 const goForward = () => {
   router.forward()
 }
-
 const handleSearch = () => {
   if (keywords.value.trim()) {
     router.push(`/search?q=${encodeURIComponent(keywords.value)}`)
@@ -73,12 +61,10 @@ const handleSearch = () => {
     router.push('/search?q=*')
   }
 }
-
 const handleLinkClick = (index) => {
   check.value = check.value.map((_, i) => i === index)
 }
 </script>
-
 <template>
   <div>
     <nav class="has-custom-titlebar">
@@ -113,7 +99,6 @@ const handleLinkClick = (index) => {
           </SvgIcon>
         </ButtonIcon>
       </div>
-
       <div class="navigation-links">
         <router-link
           v-for="(page, index) in pageList"
@@ -125,7 +110,6 @@ const handleLinkClick = (index) => {
           {{ t(page.name) }}
         </router-link>
       </div>
-
       <div class="right-part">
         <div class="search-box">
           <div :class="['container', { active: act }]">
@@ -171,7 +155,6 @@ const handleLinkClick = (index) => {
     />
   </div>
 </template>
-
 <style scoped>
 nav {
   position: fixed;
@@ -189,40 +172,33 @@ nav {
   z-index: 100;
   -webkit-app-region: drag;
 }
-
 @media (max-width: 1336px) {
   nav {
     padding: 0 max(5vw, 90px);
   }
 }
-
 nav.has-custom-titlebar {
   padding-top: 20px;
   -webkit-app-region: no-drag;
   color: white;
 }
-
 .navigation-buttons {
   flex: 1;
   display: flex;
   align-items: center;
 }
-
 .navigation-buttons :deep(.svg-icon) {
   height: 24px;
   width: 24px;
 }
-
 .navigation-buttons button {
   -webkit-app-region: no-drag;
 }
-
 @media (max-width: 970px) {
   .navigation-buttons {
     flex: unset;
   }
 }
-
 .navigation-links {
   flex: 1;
   display: flex;
@@ -230,7 +206,6 @@ nav.has-custom-titlebar {
   text-transform: uppercase;
   user-select: none;
 }
-
 .navigation-links a {
   -webkit-app-region: no-drag;
   font-size: 18px;
@@ -244,26 +219,21 @@ nav.has-custom-titlebar {
   margin-right: 12px;
   margin-left: 12px;
 }
-
 .navigation-links a:hover {
   background: var(--color-secondary-bg-for-transparent);
 }
-
 .navigation-links a:active {
   transform: scale(0.92);
   transition: 0.2s;
 }
-
 .navigation-links a.active {
   color: var(--color-primary);
 }
-
 .search-box {
   display: flex;
   justify-content: flex-end;
   -webkit-app-region: no-drag;
 }
-
 .search-box .container {
   display: flex;
   align-items: center;
@@ -272,7 +242,6 @@ nav.has-custom-titlebar {
   border-radius: 8px;
   width: 200px;
 }
-
 .search-box input {
   font-size: 16px;
   border: none;
@@ -284,12 +253,10 @@ nav.has-custom-titlebar {
   color: var(--color-text);
   outline: none;
 }
-
 .search-box input::placeholder {
   position: relative;
   top: 2px;
 }
-
 .search-box :deep(.svg-icon) {
   height: 15px;
   width: 17.25px;
@@ -298,24 +265,20 @@ nav.has-custom-titlebar {
   margin-left: 8px;
   margin-right: 4px;
 }
-
 .search-box .active {
   background: var(--color-primary-bg-for-transparent);
 }
-
 .search-box .active input,
 .search-box .active :deep(.svg-icon) {
   opacity: 1;
   color: var(--color-text);
 }
-
 .right-part {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: flex-end;
 }
-
 .right-part .avatar {
   user-select: none;
   height: 30px;
@@ -326,7 +289,6 @@ nav.has-custom-titlebar {
   -webkit-app-region: no-drag;
   -webkit-user-drag: none;
 }
-
 .right-part .avatar:hover {
   filter: brightness(80%);
 }

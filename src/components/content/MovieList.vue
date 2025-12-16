@@ -2,8 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useQuery } from '@tanstack/vue-query'
-import { getMovieImages } from '@/api/movie'
-
+import { getMovieImages } from '@/api/movie.js'
 const props = defineProps({
   movies: {
     type: Array,
@@ -18,10 +17,8 @@ const props = defineProps({
     default: 5
   }
 })
-
 const router = useRouter()
 const showStates = ref([])
-
 // 获取视频缩略图
 const { data: movieImages } = useQuery({
   queryKey: ['movieImages'],
@@ -29,11 +26,9 @@ const { data: movieImages } = useQuery({
   staleTime: 5 * 60 * 1000,
   retry: false
 })
-
 // 过滤和格式化视频列表
 const filteredMovies = computed(() => {
   if (!props.movies || props.movies.length === 0) return []
-
   // 根据搜索关键词过滤
   let filtered = props.movies
   if (props.searchKey) {
@@ -41,15 +36,12 @@ const filteredMovies = computed(() => {
       movie.title.toLowerCase().includes(props.searchKey.toLowerCase())
     )
   }
-
   // 限制数量
   if (props.limit > 0) {
     filtered = filtered.slice(0, props.limit)
   }
-
   return filtered
 })
-
 // 格式化视频数据
 const formattedMovies = computed(() => {
   return filteredMovies.value.map(movie => {
@@ -62,11 +54,9 @@ const formattedMovies = computed(() => {
     }
   })
 })
-
 // 合并图片数据
 const moviesWithImages = computed(() => {
   if (!movieImages.value) return formattedMovies.value
-
   return formattedMovies.value.map(movie => {
     const matchedImg = movieImages.value.find(img => img.title === movie.fullTitle)
     return {
@@ -75,23 +65,19 @@ const moviesWithImages = computed(() => {
     }
   })
 })
-
 // 初始化显示状态
 watch(filteredMovies, (newMovies) => {
   showStates.value = new Array(newMovies.length).fill(false)
 }, { immediate: true })
-
 // 处理视频点击
 const handleVideoClick = (movie) => {
   router.push(`/moviePage?q=${props.searchKey || ''}&title=${movie.fullTitle}`)
 }
-
 // 处理鼠标悬停
 const setShowState = (index, value) => {
   showStates.value = showStates.value.map((state, i) => i === index ? value : state)
 }
 </script>
-
 <template>
   <div class="movie-list">
     <div
@@ -137,30 +123,25 @@ const setShowState = (index, value) => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .movie-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 20px;
 }
-
 @media (max-width: 768px) {
   .movie-list {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 16px;
   }
 }
-
 .movie-card {
   cursor: pointer;
   transition: transform 0.3s;
 }
-
 .movie-card:hover {
   transform: translateY(-4px);
 }
-
 .cover {
   position: relative;
   margin-bottom: 12px;
@@ -169,14 +150,12 @@ const setShowState = (index, value) => {
   background: var(--color-secondary-bg);
   aspect-ratio: 16 / 9;
 }
-
 .cover img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
-
 .placeholder {
   width: 100%;
   height: 100%;
@@ -186,13 +165,11 @@ const setShowState = (index, value) => {
   background: var(--color-secondary-bg);
   color: var(--color-secondary);
 }
-
 .placeholder svg {
   width: 48px;
   height: 48px;
   opacity: 0.3;
 }
-
 .shadow {
   position: absolute;
   top: 8px;
@@ -208,11 +185,9 @@ const setShowState = (index, value) => {
   transition: opacity 0.3s;
   pointer-events: none;
 }
-
 .info {
   padding: 0 4px;
 }
-
 .title {
   font-size: 14px;
   font-weight: 600;
@@ -224,11 +199,9 @@ const setShowState = (index, value) => {
   cursor: pointer;
   transition: color 0.2s;
 }
-
 .title:hover {
   color: var(--color-primary);
 }
-
 .artist {
   font-size: 12px;
   color: var(--color-secondary);
@@ -238,7 +211,6 @@ const setShowState = (index, value) => {
   cursor: pointer;
   transition: color 0.2s;
 }
-
 .artist:hover {
   color: var(--color-text);
 }

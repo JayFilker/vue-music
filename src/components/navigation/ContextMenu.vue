@@ -2,7 +2,6 @@
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SvgIcon from '../common/SvgIcon.vue'
-
 const props = defineProps({
   style: {
     type: Object,
@@ -17,12 +16,9 @@ const props = defineProps({
     default: null
   }
 })
-
 const emit = defineEmits(['update:show'])
-
 const router = useRouter()
 const { t } = useI18n()
-
 const menuItems = [
   {
     name: '设置',
@@ -39,22 +35,18 @@ const menuItems = [
     route: '/login'
   }
 ]
-
 const handleItemClick = (index) => {
   if (props.list) {
     // 自定义列表处理
     return
   }
-
   const item = menuItems[index]
   if (item && item.route) {
     router.push(item.route)
   }
-
   emit('update:show', false)
 }
 </script>
-
 <template>
   <div class="context-menu" style="width: 100px">
     <div class="menu" :style="style">
@@ -84,14 +76,12 @@ const handleItemClick = (index) => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .context-menu {
   width: 100%;
   height: 100%;
   user-select: none;
 }
-
 .menu {
   position: fixed;
   min-width: 136px;
@@ -108,11 +98,9 @@ const handleItemClick = (index) => {
   -webkit-app-region: no-drag;
   transition: background 125ms ease-out, opacity 125ms ease-out, transform 125ms ease-out;
 }
-
 .menu:focus {
   outline: none;
 }
-
 .menu .item {
   font-weight: 600;
   font-size: 14px;
@@ -123,18 +111,15 @@ const handleItemClick = (index) => {
   display: flex;
   align-items: center;
 }
-
 .menu .item:hover {
   color: var(--color-text);
   background: var(--color-primary-bg-for-transparent);
   transition: opacity 125ms ease-out, transform 125ms ease-out;
 }
-
 .menu .item:active {
   opacity: 0.75;
   transform: scale(0.95);
 }
-
 .menu .item :deep(.svg-icon) {
   height: 16px;
   width: 16px;

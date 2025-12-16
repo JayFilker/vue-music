@@ -2,19 +2,16 @@
 import { ref, watch, computed, onMounted, onUnmounted } from 'vue'
 import { useMusicStore } from '@/stores/music'
 import { seekToPosition } from '@/api/system'
-
 const musicStore = useMusicStore()
 const isDragging = ref(false)
 const showTooltip = ref(false)
 const sliderRef = ref(null)
 const lastUpdateTime = ref(Date.now())
 const lastMoveTime = ref(0)
-
 // 计算属性：当前进度
 const progress = computed(() => musicStore.progress)
 const currentTrackDuration = computed(() => musicStore.currentTrackDuration)
 const deviceId = computed(() => musicStore.device)
-
 // 格式化时间
 const formatTime = (seconds) => {
   if (!seconds || isNaN(seconds)) return '0:00'
@@ -22,36 +19,28 @@ const formatTime = (seconds) => {
   const secs = Math.floor(seconds % 60)
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
-
 // 计算进度百分比
 const progressPercentage = computed(() => {
   if (!currentTrackDuration.value) return 0
   return (progress.value / currentTrackDuration.value) * 100
 })
-
 // 根据客户端 X 坐标更新进度
 const updateProgressFromClientX = (clientX) => {
   if (!sliderRef.value) return null
-
   const rect = sliderRef.value.getBoundingClientRect()
   const sliderWidth = rect.width
   const offsetX = clientX - rect.left
-
   // 计算百分比位置
   let percentage = (offsetX / sliderWidth) * 100
   percentage = Math.max(0, Math.min(100, percentage))
-
   // 更新进度值
   const newProgress = (percentage / 100) * currentTrackDuration.value
   musicStore.updateProgress(newProgress)
-
   return newProgress
 }
-
 // 跳转到指定位置
 const seekToPositionDemo = async (positionSec) => {
   if (!deviceId.value) return
-
   try {
     const positionMs = Math.floor(positionSec * 1000)
     lastUpdateTime.value = Date.now()
@@ -61,25 +50,20 @@ const seekToPositionDemo = async (positionSec) => {
     console.error('Failed to seek:', error)
   }
 }
-
 // 处理鼠标移动（带节流优化，每16ms更新一次，约60fps）
 const handleMouseMove = (e) => {
   if (!isDragging.value) return
-
   const now = Date.now()
   if (now - lastMoveTime.value < 16) return // 节流：约60fps
-
   lastMoveTime.value = now
   updateProgressFromClientX(e.clientX)
 }
-
 // 处理鼠标抬起
 const handleMouseUp = (e) => {
   // 只有在真正拖拽时才执行 seek 操作
   if (!isDragging.value) {
     return
   }
-
   const newProgress = updateProgressFromClientX(e.clientX)
   if (newProgress !== null) {
     seekToPositionDemo(newProgress).then(() => {
@@ -91,48 +75,37 @@ const handleMouseUp = (e) => {
   }
   isDragging.value = false
 }
-
 // 处理鼠标按下
 const handleMouseDown = (e) => {
   e.preventDefault()
   if (!sliderRef.value) return
-
   musicStore.stopUpdateBar = true
   isDragging.value = true
   updateProgressFromClientX(e.clientX)
 }
-
 // 触摸事件处理
 const handleTouchStart = (e) => {
   if (!sliderRef.value) return
-
   musicStore.stopUpdateBar = true
   isDragging.value = true
-
   const touch = e.touches[0]
   updateProgressFromClientX(touch.clientX)
 }
-
 const handleTouchMove = (e) => {
   if (!isDragging.value) return
-
   const now = Date.now()
   if (now - lastMoveTime.value < 16) return // 节流：约60fps
-
   lastMoveTime.value = now
   const touch = e.touches[0]
   updateProgressFromClientX(touch.clientX)
 }
-
 const handleTouchEnd = (e) => {
   // 只有在真正拖拽时才执行 seek 操作
   if (!isDragging.value) {
     return
   }
-
   const touch = e.changedTouches[0]
   const newProgress = updateProgressFromClientX(touch.clientX)
-
   if (newProgress !== null) {
     seekToPositionDemo(newProgress).then(() => {
       // 等待SDK处理seek请求后再解锁（短延时避免跳动）
@@ -143,13 +116,11 @@ const handleTouchEnd = (e) => {
   }
   isDragging.value = false
 }
-
 // 组件挂载和卸载时的事件监听
 onMounted(() => {
   document.addEventListener('mousemove', handleMouseMove)
   document.addEventListener('mouseup', handleMouseUp)
 })
-
 onUnmounted(() => {
   document.removeEventListener('mousemove', handleMouseMove)
   document.removeEventListener('mouseup', handleMouseUp)
@@ -199,7 +170,6 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .vue-slider {
   position: relative;
@@ -207,7 +177,6 @@ onUnmounted(() => {
   padding: 6px 0;
   width: 100%;
 }
-
 .vue-slider-rail {
   position: relative;
   width: 100%;
@@ -216,7 +185,6 @@ onUnmounted(() => {
   border-radius: 15px;
   transition: background-color 0.3s;
 }
-
 .vue-slider-process {
   position: absolute;
   top: 0;
@@ -227,7 +195,6 @@ onUnmounted(() => {
   transition-property: width;
   transition-duration: 0s;
 }
-
 .vue-slider-dot {
   position: absolute;
   top: 50%;
@@ -238,7 +205,6 @@ onUnmounted(() => {
   cursor: pointer;
   z-index: 5;
 }
-
 .vue-slider-dot-handle {
   width: 100%;
   height: 100%;
@@ -246,7 +212,6 @@ onUnmounted(() => {
   background-color: var(--color-text);
   box-shadow: 0.5px 0.5px 2px 1px rgba(0, 0, 0, 0.32);
 }
-
 .vue-slider-dot-tooltip {
   position: absolute;
   visibility: visible;
@@ -263,15 +228,12 @@ onUnmounted(() => {
   pointer-events: none;
   z-index: 10;
 }
-
 .vue-slider-dot-tooltip-inner {
   position: relative;
 }
-
 .vue-slider-dot-tooltip-text {
   display: block;
 }
-
 .vue-slider-dot-tooltip-inner-top::after {
   content: "";
   position: absolute;
@@ -282,7 +244,6 @@ onUnmounted(() => {
   height: 6px;
   background-color: rgba(0, 0, 0, 0.75);
 }
-
 /* Hover effects */
 .vue-slider:hover .vue-slider-rail {
   background-color: hsla(0, 0%, 50.2%, 0.28);

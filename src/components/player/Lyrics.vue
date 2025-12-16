@@ -5,7 +5,6 @@ import { useMusicStore } from '@/stores/music'
 import { searchMusic, getLyricsByUrl } from '@/api/lyrics'
 import ButtonIcon from '../common/ButtonIcon.vue'
 import SvgIcon from '../common/SvgIcon.vue'
-
 const musicStore = useMusicStore()
 const currentSong = computed(() => {
   const list = musicStore.currentSongList
@@ -15,19 +14,15 @@ const currentSong = computed(() => {
 const progress = computed(() => musicStore.playerDemo.progress)
 const duration = computed(() => musicStore.playerDemo.currentTrackDuration)
 const settings = computed(() => musicStore.setDemo)
-
 // 歌词相关状态
 const currentLyricIndex = ref(0)
 const lyricsContainer = ref(null)
-
 // 关闭歌词
 const closeLyrics = () => {
   musicStore.toggleLyrics()
 }
-
 // 背景渐变
 const backgroundGradient = ref('linear-gradient(to left top, rgb(100, 50, 150), rgb(50, 100, 200))')
-
 // 生成随机渐变背景
 const generateRandomGradient = () => {
   const getRandomColor = () => {
@@ -40,10 +35,8 @@ const generateRandomGradient = () => {
   const color2 = getRandomColor()
   backgroundGradient.value = `linear-gradient(to left top, ${color1}, ${color2})`
 }
-
 // 获取歌曲名称用于搜索
 const songName = computed(() => currentSong.value?.name || '')
-
 // 使用 Vue Query 搜索歌曲
 const { data: musicData } = useQuery({
   queryKey: ['searchMusic', songName],
@@ -51,10 +44,8 @@ const { data: musicData } = useQuery({
   enabled: computed(() => !!songName.value),
   staleTime: 5 * 60 * 1000, // 5分钟缓存
 })
-
 // 获取歌词URL
 const lyricsUrl = computed(() => musicData.value?.result?.[0]?.api_lyrics || '')
-
 // 使用 Vue Query 获取歌词
 const { data: lyricsData } = useQuery({
   queryKey: ['lyricsByUrl', lyricsUrl],
@@ -62,7 +53,6 @@ const { data: lyricsData } = useQuery({
   enabled: computed(() => !!lyricsUrl.value),
   staleTime: 5 * 60 * 1000, // 5分钟缓存
 })
-
 // 解析歌词
 const lyrics = computed(() => {
   if (!lyricsData.value?.result?.lyrics) return []
@@ -70,13 +60,11 @@ const lyrics = computed(() => {
     .split('\n')
     .filter(line => line.trim() !== '')
 })
-
 // 监听歌曲变化
 watch(currentSong, () => {
   generateRandomGradient()
   currentLyricIndex.value = 0
 })
-
 // 监听播放进度，更新当前歌词行
 watch([progress, duration, lyrics], () => {
   if (lyrics.value.length > 0 && duration.value > 0) {
@@ -85,10 +73,8 @@ watch([progress, duration, lyrics], () => {
       Math.floor(progressPercent * lyrics.value.length),
       lyrics.value.length - 1
     )
-
     if (newIndex !== currentLyricIndex.value) {
       currentLyricIndex.value = newIndex
-
       // 滚动到当前歌词行
       nextTick(() => {
         const highlightedElement = document.querySelector('.lyrics-line.highlight')
@@ -102,16 +88,13 @@ watch([progress, duration, lyrics], () => {
     }
   }
 })
-
 onMounted(() => {
   generateRandomGradient()
 })
-
 // 背景样式
 const backgroundStyle = computed(() => {
   const showBackground = settings.value.showBackGround
   const imageUrl = currentSong.value?.album?.images?.[0]?.url || ''
-
   if (showBackground === 'true') {
     return { background: backgroundGradient.value }
   } else if (showBackground === 'blur' || showBackground === 'dynamic') {
@@ -122,31 +105,25 @@ const backgroundStyle = computed(() => {
   }
   return {}
 })
-
 // 封面图片URL
 const coverImage = computed(() => {
   return currentSong.value?.album?.images?.[0]?.url || ''
 })
-
 // 歌曲标题
 const songTitle = computed(() => currentSong.value?.name || '未播放')
-
 // 歌手名称
 const artistName = computed(() => {
   return currentSong.value?.artists?.map(a => a.name).join(', ') || '未知艺术家'
 })
-
 // 字体大小
 const fontSize = computed(() => {
   return settings.value.songFontSize ? `${settings.value.songFontSize}px` : '28px'
 })
 </script>
-
 <template>
   <div class="lyrics-page">
     <!-- 背景 -->
     <div class="gradient-background" :style="backgroundStyle" />
-
     <div class="lyrics-content">
       <!-- 左侧：封面 -->
       <div class="left-side">
@@ -164,33 +141,28 @@ const fontSize = computed(() => {
               :style="{ backgroundImage: coverImage ? `url(${coverImage})` : 'none' }"
             />
           </div>
-
           <div class="song-info">
             <h2 class="song-title">{{ songTitle }}</h2>
             <p class="song-artist">{{ artistName }}</p>
           </div>
         </div>
       </div>
-
       <!-- 右侧：歌词 -->
       <div class="right-side">
         <div class="lyrics-container" ref="lyricsContainer" :style="{ fontSize }">
           <!-- 空行用于顶部留白 -->
           <div class="line" />
-
           <!-- 作曲作词信息 -->
           <div :class="['lyrics-line', { highlight: currentLyricIndex === 0 }]">
             <div class="content">
               <span>作曲: {{ artistName }}</span>
             </div>
           </div>
-
           <div :class="['lyrics-line', { highlight: currentLyricIndex === 1 }]">
             <div class="content">
               <span>作词: {{ artistName }}</span>
             </div>
           </div>
-
           <!-- 歌词内容 -->
           <template v-if="lyrics.length > 0">
             <div
@@ -202,7 +174,6 @@ const fontSize = computed(() => {
                 <span>{{ line }}</span>
               </div>
             </div>
-
             <!-- 歌词来源 -->
             <div :class="['lyrics-line', { highlight: currentLyricIndex === lyrics.length + 2 }]">
               <div class="content">
@@ -210,7 +181,6 @@ const fontSize = computed(() => {
               </div>
             </div>
           </template>
-
           <!-- 无歌词提示 -->
           <template v-else>
             <div class="lyrics-line">
@@ -222,7 +192,6 @@ const fontSize = computed(() => {
         </div>
       </div>
     </div>
-
     <!-- 关闭按钮 -->
     <div class="close-button" @click="closeLyrics">
       <button>
@@ -238,7 +207,6 @@ const fontSize = computed(() => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .lyrics-page {
   position: fixed;
@@ -251,7 +219,6 @@ const fontSize = computed(() => {
   display: flex;
   background: var(--color-body-bg);
 }
-
 .gradient-background {
   position: absolute;
   top: 0;
@@ -262,7 +229,6 @@ const fontSize = computed(() => {
   height: 100vh;
   z-index: 0;
 }
-
 .lyrics-content {
   position: relative;
   display: flex;
@@ -270,7 +236,6 @@ const fontSize = computed(() => {
   height: 100%;
   z-index: 1;
 }
-
 .left-side {
   flex: 1;
   display: flex;
@@ -280,19 +245,16 @@ const fontSize = computed(() => {
   margin-top: 24px;
   transition: all 0.5s;
 }
-
 .album-info {
   max-width: 54vh;
   width: 100%;
 }
-
 .cover-container {
   position: relative;
   width: 100%;
   aspect-ratio: 1;
   margin-bottom: 30px;
 }
-
 .cover-image,
 .cover-placeholder {
   width: 54vh;
@@ -301,11 +263,9 @@ const fontSize = computed(() => {
   object-fit: cover;
   user-select: none;
 }
-
 .cover-placeholder {
   background: var(--color-secondary-bg);
 }
-
 .shadow {
   position: absolute;
   top: 12px;
@@ -321,12 +281,10 @@ const fontSize = computed(() => {
   z-index: -1;
   border-radius: 0.75em;
 }
-
 .song-info {
   text-align: center;
   color: var(--color-text);
 }
-
 .song-title {
   font-size: 1.4rem;
   font-weight: 600;
@@ -338,7 +296,6 @@ const fontSize = computed(() => {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }
-
 .song-artist {
   font-size: 1rem;
   opacity: 0.58;
@@ -348,7 +305,6 @@ const fontSize = computed(() => {
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
 }
-
 .right-side {
   flex: 1;
   display: flex;
@@ -359,7 +315,6 @@ const fontSize = computed(() => {
   padding-left: 78px;
   max-width: 460px;
 }
-
 .lyrics-container {
   height: 100%;
   display: flex;
@@ -368,57 +323,46 @@ const fontSize = computed(() => {
   transition: 0.5s;
   scrollbar-width: none;
 }
-
 .lyrics-container::-webkit-scrollbar {
   display: none;
 }
-
 .line {
   margin: 2px 0;
 }
-
 .lyrics-line {
   margin: 2px 0;
   padding: 12px 18px;
   transition: 0.5s;
   border-radius: 12px;
 }
-
 .lyrics-line:hover {
   background: var(--color-secondary-bg-for-transparent);
 }
-
 .lyrics-line .content {
   transform-origin: center left;
   transform: scale(0.95);
   transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   user-select: none;
 }
-
 .lyrics-line .content span {
   opacity: 0.28;
   cursor: default;
   font-size: 1em;
   transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
-
 .lyrics-line.highlight .content {
   transform: scale(1);
 }
-
 .lyrics-line.highlight .content span {
   opacity: 0.98;
   display: inline-block;
 }
-
 .lyrics-container .line:first-child {
   margin-top: 50vh;
 }
-
 .lyrics-container .lyrics-line:last-child {
   margin-bottom: calc(50vh - 128px);
 }
-
 .close-button {
   position: fixed;
   top: 24px;
@@ -433,12 +377,10 @@ const fontSize = computed(() => {
   opacity: 0.28;
   transition: 0.2s;
 }
-
 .close-button:hover {
   background: var(--color-secondary-bg-for-transparent);
   opacity: 0.88;
 }
-
 .close-button button {
   background: none;
   border: none;
@@ -446,30 +388,25 @@ const fontSize = computed(() => {
   padding: 0;
   margin: 0;
 }
-
 .close-button .svg-icon {
   color: var(--color-text);
   padding-top: 5px;
   height: 22px;
   width: 22px;
 }
-
 /* 响应式设计 */
 @media (max-aspect-ratio: 10/9) {
   .left-side {
     display: none;
   }
-
   .right-side {
     max-width: 100%;
     padding-left: 24px;
   }
-
   .lyrics-container {
     max-width: 100%;
   }
 }
-
 @media screen and (min-width: 1200px) {
   .right-side {
     max-width: 600px;

@@ -11,39 +11,31 @@ import { useMusicStore } from '@/stores/music'
 import AlbumCard from '@/components/content/AlbumCard.vue'
 import SvgIcon from '@/components/common/SvgIcon.vue'
 import RankFor from '@/components/content/RankFor.vue'
-
 const { t } = useI18n()
 const musicStore = useMusicStore()
-
 // 悬停状态管理（为每个艺术家维护一个状态）
 const artistHoverStates = ref([])
-
 const deviceId = computed(() => musicStore.device)
-
 // 获取推荐播放列表
 const { data: recommendPlaylists, isLoading: isLoadingRecommend } = useQuery({
   queryKey: ['firstPage', 'recommend'],
   queryFn: () => firstFetchProfile('recommend', 12, 'playlist'),
   staleTime: 5 * 60 * 1000
 })
-
 // 获取新专辑
 const { data: newAlbums, isLoading: isLoadingNew } = useQuery({
   queryKey: ['firstPage', 'new'],
   queryFn: () => firstFetchProfile('new', 12, 'album'),
   staleTime: 5 * 60 * 1000
 })
-
 // 获取推荐艺术家
 const searchTerms = ['recommended', 'popular', 'top']
 const randomTerm = ref(searchTerms[Math.floor(Math.random() * searchTerms.length)])
-
 const { data: artists, isLoading: isLoadingArtists } = useQuery({
   queryKey: ['firstPage', 'artists', randomTerm],
   queryFn: () => recommendedArtists(randomTerm.value),
   staleTime: 5 * 60 * 1000
 })
-
 // 获取收藏的专辑
 const { data: savedAlbums } = useQuery({
   queryKey: ['savedAlbums'],
@@ -54,7 +46,6 @@ const { data: savedAlbums } = useQuery({
     console.warn('Failed to load saved albums:', error)
   }
 })
-
 // 获取播放列表
 const { data: userPlaylists } = useQuery({
   queryKey: ['userPlaylists'],
@@ -65,19 +56,16 @@ const { data: userPlaylists } = useQuery({
     console.warn('Failed to load playlists:', error)
   }
 })
-
 // 检查专辑是否被收藏
 const isAlbumLiked = (albumId) => {
   const albums = savedAlbums.value?.songs || []
   return Array.isArray(albums) && albums.some(a => a.id === albumId)
 }
-
 // 检查播放列表是否被收藏
 const isPlaylistLiked = (playlistId) => {
   const playlists = userPlaylists.value?.songs || []
   return Array.isArray(playlists) && playlists.some(p => p.id === playlistId)
 }
-
 // 格式化数据
 const formatPlaylists = (data) => {
   if (!data?.playlists?.items) return []
@@ -85,14 +73,12 @@ const formatPlaylists = (data) => {
     .filter(item => item !== null)
     .slice(0, 12)
 }
-
 const formatAlbums = (data) => {
   if (!data?.albums?.items) return []
   return data.albums.items
     .filter(item => item !== null)
     .slice(0, 12)
 }
-
 // 使用 computed 格式化艺术家数据
 const formattedArtists = computed(() => {
   if (!artists.value?.artists?.items) return []
@@ -100,12 +86,10 @@ const formattedArtists = computed(() => {
     .filter(item => item !== null)
     .slice(0, 6)
 })
-
 // 监听艺术家数据变化，初始化悬停状态数组
 watch(formattedArtists, (newArtists) => {
   artistHoverStates.value = Array.from({ length: newArtists.length }, () => false)
 }, { immediate: true })
-
 // 处理悬停状态更新
 const setArtistHover = (index, value) => {
   // 使用数组替换确保响应式更新
@@ -113,38 +97,30 @@ const setArtistHover = (index, value) => {
   newStates[index] = value
   artistHoverStates.value = newStates
 }
-
 // 处理艺术家播放按钮点击
 const handleArtistPlay = async (e, artistId, index) => {
   e.stopPropagation() // 阻止冒泡到卡片点击事件
-
   try {
     if (!deviceId.value) {
       console.error('No device available')
       return
     }
-
     // 获取艺术家的热门歌曲
     const topTracks = await getArtistTopTracks(artistId)
-
     if (topTracks?.tracks && topTracks.tracks.length > 0) {
       const tracks = topTracks.tracks
-
       // 设置播放列表
       musicStore.setSongList(tracks)
       musicStore.setCurrentSongList({
         items: tracks,
         imgPic: tracks[0]?.album?.images?.[0]?.url
       })
-
       // 设置当前歌曲索引
       musicStore.setCurrentSong(0)
       musicStore.$patch({ firstPlay: false })
-
       // 调用Spotify API播放
       const trackUri = tracks[0].uri
       await playTrack(trackUri, deviceId.value)
-
       // 更新播放状态
       musicStore.$patch({
         isPlayingDemo: true,
@@ -158,11 +134,9 @@ const handleArtistPlay = async (e, artistId, index) => {
   }
 }
 </script>
-
 <template>
   <div class="first-page">
     <h1 class="page-title">{{ t('首页') }}</h1>
-
     <!-- 推荐歌单 -->
     <section class="section">
       <div class="section-header">
@@ -182,7 +156,6 @@ const handleArtistPlay = async (e, artistId, index) => {
         />
       </div>
     </section>
-
     <!-- 新专辑 -->
     <section class="section">
       <div class="section-header">
@@ -202,7 +175,6 @@ const handleArtistPlay = async (e, artistId, index) => {
         />
       </div>
     </section>
-
     <!-- 推荐艺人 -->
     <section class="section">
       <div class="section-header">
@@ -257,88 +229,73 @@ const handleArtistPlay = async (e, artistId, index) => {
       <RankFor />
   </div>
 </template>
-
 <style scoped>
 .first-page {
   padding: 20px 0;
 }
-
 .page-title {
   font-size: 36px;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: 30px;
 }
-
 .section {
   margin-bottom: 50px;
 }
-
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
-
 .section-header h2 {
   font-size: 24px;
   font-weight: 700;
   color: var(--color-text);
 }
-
 .view-all {
   font-size: 14px;
   color: var(--color-secondary);
   text-decoration: none;
   transition: color 0.2s;
 }
-
 .view-all:hover {
   color: var(--color-primary);
 }
-
 .loading {
   padding: 40px;
   text-align: center;
   color: var(--color-secondary);
 }
-
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
 }
-
 @media (max-width: 768px) {
   .grid {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
     gap: 16px;
   }
 }
-
 .artist-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 24px;
 }
-
 @media (max-width: 768px) {
   .artist-grid {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
 }
-
 .artist-card {
   text-align: center;
   cursor: pointer;
   transition: transform 0.2s;
 }
-
 .artist-card:hover {
   transform: translateY(-4px);
 }
-
 .artist-cover {
   position: relative;
   aspect-ratio: 1;
@@ -347,7 +304,6 @@ const handleArtistPlay = async (e, artistId, index) => {
   background: var(--color-secondary-bg);
   margin-bottom: 12px;
 }
-
 .artist-cover img {
   position: relative;
   width: 100%;
@@ -355,7 +311,6 @@ const handleArtistPlay = async (e, artistId, index) => {
   object-fit: cover;
   z-index: 1;
 }
-
 .shade {
   position: absolute;
   top: 0;
@@ -369,7 +324,6 @@ const handleArtistPlay = async (e, artistId, index) => {
   z-index: 2;
   pointer-events: none;
 }
-
 .play-button {
   display: flex;
   justify-content: center;
@@ -386,15 +340,12 @@ const handleArtistPlay = async (e, artistId, index) => {
   animation: fadeIn 0.2s ease-in;
   pointer-events: auto;
 }
-
 .play-button:hover {
   background: rgba(255, 255, 255, 0.28);
 }
-
 .play-button:active {
   transform: scale(0.94);
 }
-
 .shadow {
   position: absolute;
   top: 12px;
@@ -409,11 +360,9 @@ const handleArtistPlay = async (e, artistId, index) => {
   opacity: 0;
   transition: opacity 0.3s;
 }
-
 .shadow.visible {
   opacity: 1;
 }
-
 .artist-name {
   font-size: 14px;
   font-weight: 600;
@@ -422,7 +371,6 @@ const handleArtistPlay = async (e, artistId, index) => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 @keyframes fadeIn {
   from {
     opacity: 0;

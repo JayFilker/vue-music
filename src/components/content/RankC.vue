@@ -4,7 +4,6 @@ import { useRouter } from 'vue-router'
 import { useMusicStore } from '@/stores/music'
 import { playTrack } from '@/api/system'
 import SvgIcon from '../common/SvgIcon.vue'
-
 const props = defineProps({
     item: {
         type: Object,
@@ -16,13 +15,10 @@ const props = defineProps({
         des: ''
     }
 })
-
 const router = useRouter()
 const musicStore = useMusicStore()
 const showPlayButton = ref(false)
-
 const deviceId = computed(() => musicStore.device)
-
 // 处理播放按钮点击
 const handlePlayClick = async (e) => {
     e.stopPropagation() // 阻止冒泡到父元素
@@ -31,11 +27,8 @@ const handlePlayClick = async (e) => {
             console.error('No device available')
             return
         }
-
         // 根据类型获取歌曲列表
         let tracks=props.item.tracks.items || []
-        console.log(tracks)
-
         if (tracks.length > 0) {
             // 设置播放列表
             musicStore.setSongList(tracks)
@@ -56,7 +49,6 @@ const handlePlayClick = async (e) => {
     }
 }
 </script>
-
 <template>
     <div
         class="album-card"
@@ -65,7 +57,6 @@ const handlePlayClick = async (e) => {
     >
         <div class="cover-container">
             <div class="shade">
-
                 <!-- 播放按钮 - 中心 -->
                 <button
                     v-show="showPlayButton"
@@ -105,22 +96,18 @@ const handlePlayClick = async (e) => {
         </div>
     </div>
 </template>
-
 <style scoped>
 .album-card {
     cursor: pointer;
     transition: transform 0.3s;
 }
-
 .album-card:hover {
     transform: translateY(-4px);
 }
-
 .cover-container {
     position: relative;
     margin-bottom: 12px;
 }
-
 img {
     border-radius: 0.75em;
     width: 100%;
@@ -129,7 +116,6 @@ img {
     border: 1px solid rgba(0, 0, 0, 0.04);
     object-fit: cover;
 }
-
 .shade {
     position: absolute;
     top: 0;
@@ -141,14 +127,12 @@ img {
     align-items: center;
     z-index: 2;
 }
-
 .like-button-container {
     position: absolute;
     top: 8px;
     right: 8px;
     z-index: 3;
 }
-
 .play-button {
     display: flex;
     justify-content: center;
@@ -164,15 +148,12 @@ img {
     transition: 0.2s;
     animation: fadeIn 0.2s ease-in;
 }
-
 .play-button:hover {
     background: rgba(255, 255, 255, 0.28);
 }
-
 .play-button:active {
     transform: scale(0.94);
 }
-
 .shadow {
     position: absolute;
     top: 12px;
@@ -187,15 +168,12 @@ img {
     opacity: 0;
     transition: opacity 0.3s;
 }
-
 .shadow.visible {
     opacity: 1;
 }
-
 .info {
     padding: 0 4px;
 }
-
 .name {
     font-size: 14px;
     font-weight: 600;
@@ -208,7 +186,6 @@ img {
     margin-bottom: 4px;
     line-height: 1.4;
 }
-
 .artist,
 .description {
     font-size: 12px;
@@ -217,7 +194,6 @@ img {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-
 @keyframes fadeIn {
     from {
         opacity: 0;

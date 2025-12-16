@@ -3,11 +3,9 @@ import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTheme } from '@/composables/useTheme'
 import { useMusicStore } from '@/stores/music'
-
 const { t, locale } = useI18n()
 const { currentTheme, setTheme, THEME_DARK, THEME_LIGHT, THEME_AUTO } = useTheme()
 const musicStore = useMusicStore()
-
 // 设置项
 const settings = ref({
   language: locale.value || 'zh-CN',
@@ -16,7 +14,6 @@ const settings = ref({
   autoPlay: true,
   showLyrics: true,
 })
-
 // 语言选项
 const languages = [
   { value: 'zh-CN', label: '简体中文' },
@@ -24,14 +21,12 @@ const languages = [
   { value: 'en', label: 'English' },
   { value: 'tr', label: 'Türkçe' },
 ]
-
 // 主题选项
 const themes = ref([
   { value: THEME_DARK, label: '', key: 'darkMode' },
   { value: THEME_LIGHT, label: '', key: 'lightMode' },
   { value: THEME_AUTO, label: '', key: 'autoMode' },
 ])
-
 // 音质选项
 const qualities = ref([
   { value: 'low', label: '', key: 'qualityLow' },
@@ -39,55 +34,44 @@ const qualities = ref([
   { value: 'high', label: '', key: 'qualityHigh' },
   { value: 'lossless', label: '', key: 'qualityLossless' },
 ])
-
 // 更改语言
 const changeLanguage = (lang) => {
   settings.value.language = lang
   locale.value = lang
   localStorage.setItem('language', lang)
-
   // 显示提示
   showNotification(t('settings.settingsSaved'))
 }
-
 // 更改主题
 const changeTheme = (theme) => {
   settings.value.theme = theme
   setTheme(theme)
-
   // 显示提示
   showNotification(t('settings.settingsSaved'))
 }
-
 // 保存设置
 const saveSettings = () => {
   // 保存到localStorage
   localStorage.setItem('settings', JSON.stringify(settings.value))
-
   // 更新store（如果需要）
   musicStore.updateSettings({
     soundQuality: settings.value.quality,
   })
-
   // 显示提示
   showNotification(t('settings.settingsSaved'))
 }
-
 // 通知消息
 const notification = ref({
   show: false,
   message: '',
 })
-
 const showNotification = (message) => {
   notification.value.message = message
   notification.value.show = true
-
   setTimeout(() => {
     notification.value.show = false
   }, 2000)
 }
-
 // 快捷键列表
 const shortcuts = ref([
   { key: 'Space', actionKey: 'playPause' },
@@ -97,7 +81,6 @@ const shortcuts = ref([
   { key: '↓', actionKey: 'volumeDown' },
   { key: 'L', actionKey: 'toggleLyrics' },
 ])
-
 // 从localStorage加载设置
 onMounted(() => {
   const savedSettings = localStorage.getItem('settings')
@@ -109,23 +92,19 @@ onMounted(() => {
       console.error('Failed to parse settings:', e)
     }
   }
-
   // 同步语言设置
   if (settings.value.language) {
     locale.value = settings.value.language
   }
-
   // 同步主题设置
   if (settings.value.theme) {
     setTheme(settings.value.theme)
   }
 })
 </script>
-
 <template>
   <div class="settings-page">
     <h1 class="page-title">{{ t('settings.title') }}</h1>
-
     <div class="settings-content">
       <!-- 语言设置 -->
       <div class="setting-section">
@@ -143,7 +122,6 @@ onMounted(() => {
           </select>
         </div>
       </div>
-
       <!-- 外观设置 -->
       <div class="setting-section">
         <h2>{{ t('settings.appearance') }}</h2>
@@ -193,7 +171,6 @@ onMounted(() => {
           </div>
         </div>
       </div>
-
       <!-- 播放设置 -->
       <div class="setting-section">
         <h2>{{ t('settings.playback') }}</h2>
@@ -218,7 +195,6 @@ onMounted(() => {
           </label>
         </div>
       </div>
-
       <!-- 快捷键 -->
       <div class="setting-section">
         <h2>{{ t('settings.shortcuts') }}</h2>
@@ -229,7 +205,6 @@ onMounted(() => {
           </div>
         </div>
       </div>
-
       <!-- 保存按钮 -->
       <div class="actions">
         <button class="save-button" @click="saveSettings">
@@ -237,7 +212,6 @@ onMounted(() => {
         </button>
       </div>
     </div>
-
     <!-- 通知 -->
     <transition name="fade">
       <div v-if="notification.show" class="notification">
@@ -246,45 +220,37 @@ onMounted(() => {
     </transition>
   </div>
 </template>
-
 <style scoped>
 .settings-page {
   padding: 20px 0;
   max-width: 800px;
 }
-
 .page-title {
   font-size: 36px;
   font-weight: 700;
   color: var(--color-text);
   margin-bottom: 30px;
 }
-
 .settings-content {
   background: var(--color-secondary-bg-for-transparent);
   border-radius: 12px;
   padding: 30px;
 }
-
 .setting-section {
   margin-bottom: 40px;
 }
-
 .setting-section:last-of-type {
   margin-bottom: 0;
 }
-
 .setting-section h2 {
   font-size: 20px;
   font-weight: 600;
   color: var(--color-text);
   margin-bottom: 20px;
 }
-
 .setting-item {
   margin-bottom: 20px;
 }
-
 .setting-item label {
   display: block;
   font-size: 14px;
@@ -292,7 +258,6 @@ onMounted(() => {
   margin-bottom: 8px;
   font-weight: 500;
 }
-
 .select-input {
   width: 100%;
   max-width: 300px;
@@ -305,16 +270,13 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
 }
-
 .select-input:hover {
   border-color: rgba(255, 255, 255, 0.2);
 }
-
 .select-input:focus {
   outline: none;
   border-color: var(--color-primary);
 }
-
 /* 主题选项 */
 .theme-options {
   display: grid;
@@ -322,7 +284,6 @@ onMounted(() => {
   gap: 12px;
   margin-top: 12px;
 }
-
 .theme-option {
   display: flex;
   flex-direction: column;
@@ -334,17 +295,14 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
 }
-
 .theme-option:hover {
   background: var(--color-primary-bg-for-transparent);
   transform: translateY(-2px);
 }
-
 .theme-option.active {
   border-color: var(--color-primary);
   background: var(--color-primary-bg-for-transparent);
 }
-
 .theme-icon {
   width: 48px;
   height: 48px;
@@ -354,40 +312,33 @@ onMounted(() => {
   margin-bottom: 8px;
   color: var(--color-text);
 }
-
 .theme-icon svg {
   width: 32px;
   height: 32px;
 }
-
 .theme-option.active .theme-icon {
   color: var(--color-primary);
 }
-
 .theme-label {
   font-size: 13px;
   color: var(--color-text);
   text-align: center;
   opacity: 0.8;
 }
-
 .theme-option.active .theme-label {
   opacity: 1;
   font-weight: 600;
 }
-
 /* 复选框 */
 .checkbox-item {
   margin-bottom: 12px;
 }
-
 .checkbox-label {
   display: flex;
   align-items: center;
   cursor: pointer;
   font-weight: 400 !important;
 }
-
 .checkbox-label input[type="checkbox"] {
   width: 18px;
   height: 18px;
@@ -395,18 +346,15 @@ onMounted(() => {
   cursor: pointer;
   accent-color: var(--color-primary);
 }
-
 .checkbox-label span {
   font-size: 14px;
   color: var(--color-text);
 }
-
 /* 快捷键 */
 .shortcuts-list {
-  display: grid;
-  gap: 12px;
+    display: grid;
+    gap: 12px;
 }
-
 .shortcut-item {
   display: flex;
   align-items: center;
@@ -414,7 +362,6 @@ onMounted(() => {
   background: var(--color-secondary-bg);
   border-radius: 8px;
 }
-
 .key {
   display: inline-block;
   min-width: 60px;
@@ -426,13 +373,11 @@ onMounted(() => {
   color: var(--color-text);
   text-align: center;
 }
-
 .action {
   margin-left: 16px;
   font-size: 14px;
   color: var(--color-text);
 }
-
 /* 操作按钮 */
 .actions {
   margin-top: 30px;
@@ -441,7 +386,6 @@ onMounted(() => {
   display: flex;
   justify-content: center;
 }
-
 .save-button {
   padding: 12px 32px;
   background: var(--color-primary);
@@ -453,16 +397,13 @@ onMounted(() => {
   cursor: pointer;
   transition: all 0.2s;
 }
-
 .save-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(51, 94, 234, 0.4);
 }
-
 .save-button:active {
   transform: translateY(0);
 }
-
 /* 通知 */
 .notification {
   position: fixed;
@@ -478,43 +419,35 @@ onMounted(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   z-index: 1000;
 }
-
 .fade-enter-active,
 .fade-leave-active {
   transition: all 0.3s ease;
 }
-
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
   transform: translateX(-50%) translateY(-10px);
 }
-
 /* 响应式 */
 @media (max-width: 768px) {
   .settings-content {
     padding: 20px;
   }
-
   .page-title {
     font-size: 28px;
   }
-
   .theme-options {
     grid-template-columns: 1fr;
   }
-
   .select-input {
     max-width: 100%;
   }
 }
-
 @media (max-width: 480px) {
   .shortcut-item {
     flex-direction: column;
     align-items: flex-start;
   }
-
   .action {
     margin-left: 0;
     margin-top: 8px;

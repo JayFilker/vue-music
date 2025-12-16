@@ -6,7 +6,6 @@ import ButtonIcon from '../common/ButtonIcon.vue'
 import SvgIcon from '../common/SvgIcon.vue'
 import ProgressBar from './ProgressBar.vue'
 import VolumeControl from './VolumeControl.vue'
-
 const musicStore = useMusicStore()
 const playerSdk = ref(null)
 const progressInterval = ref(null)
@@ -14,17 +13,14 @@ const isTogglingPlay = ref(false) // 防抖标志
 const isTransitioning = ref(false) // 过渡期标志，阻止进度更新
 const lastKnownProgress = ref(0) // 记录最后已知的正确进度，用于恢复播放
 const resumePlaybackTime = ref(0) // 记录恢复播放的时间戳，用于扩展保护窗口
-
 // 获取当前歌曲信息
 const currentSong = computed(() => musicStore.currentSong)
 const isPlaying = computed(() => musicStore.isPlaying)
 const deviceId = computed(() => musicStore.device)
 const currentSongList = computed(() => musicStore.currentSongList)
 const count = computed(() => musicStore.countDemo)
-
 // 获取Token
 const getToken = () => localStorage.getItem('spotify_access_token')
-
 // 停止定时器
 const stopProgressInterval = () => {
   if (progressInterval.value) {
@@ -33,32 +29,24 @@ const stopProgressInterval = () => {
     progressInterval.value = null
   }
 }
-
 // 播放指定曲目
 const playTrackByUri = async (trackUri) => {
   if (!deviceId.value) {
     console.log('No device available')
     return
   }
-
   try {
-    console.log('Playing new track')
-
     // 1. 进入过渡期，阻止所有进度更新
     isTransitioning.value = true
-
     // 2. 立即停止定时器
     stopProgressInterval()
-
     // 3. 重置进度为0
     musicStore.updateProgress(0)
     lastKnownProgress.value = 0 // 切换歌曲时重置
     resumePlaybackTime.value = 0 // 重置恢复播放时间
-
     // 4. 播放新曲目
     await playTrack(trackUri, deviceId.value)
     musicStore.$patch({ isPlayingDemo: true })
-
     // 5. 等待500ms让SDK稳定，然后解除过渡期
     setTimeout(() => {
       isTransitioning.value = false
@@ -69,38 +57,32 @@ const playTrackByUri = async (trackUri) => {
     isTransitioning.value = false
   }
 }
-
 // 播放/暂停（添加防抖）
 const togglePlay = async () => {
   if (!deviceId.value) {
     console.log('No device available')
     return
   }
-
   // 防抖：如果正在处理播放/暂停操作，直接返回
   if (isTogglingPlay.value) {
     console.log('Toggle play already in progress, ignoring')
     return
   }
-
+  console.log(currentSongList.value)
+  console.log(currentSong.value)
   isTogglingPlay.value = true
   isTransitioning.value = true // 进入过渡期
-
   try {
     if (isPlaying.value) {
-      console.log('Pausing playback')
       // 暂停前保存当前进度和停止定时器
       lastKnownProgress.value = musicStore.progress
       console.log(`⏸️ Pausing - Saved progress: ${lastKnownProgress.value.toFixed(2)}s (store: ${musicStore.progress.toFixed(2)}s)`)
       stopProgressInterval()
       await pausePlayback()
     } else {
-      console.log('Resuming playback')
-
       // 检查是否真的是首次播放（没有播放过任何内容）
       // 只有在 firstPlay=true 且当前进度为 0 时才认为是首次播放
       const isReallyFirstPlay = musicStore.firstPlay && musicStore.progress === 0 && currentSongList.value?.items?.length > 0
-
       if (isReallyFirstPlay) {
         const trackUri = currentSongList.value.items[count.value]?.uri
         if (trackUri) {
@@ -119,15 +101,11 @@ const togglePlay = async () => {
         // 正常恢复播放：保存当前进度并记录时间戳
         // 如果之前已经播放过（进度 > 0），则标记 firstPlay 为 false
         if (musicStore.firstPlay && musicStore.progress > 0) {
-          console.log('Detected previous playback, marking firstPlay as false')
           musicStore.$patch({ firstPlay: false })
         }
-
         const currentProgress = musicStore.progress
         lastKnownProgress.value = currentProgress
         resumePlaybackTime.value = Date.now() // 记录恢复播放的时间
-        console.log(`▶️ Resuming - Saved progress: ${lastKnownProgress.value.toFixed(2)}s (store: ${currentProgress.toFixed(2)}s) at time: ${resumePlaybackTime.value}`)
-        console.log(`   firstPlay: ${musicStore.firstPlay}, has trackUri: ${!!currentSongList.value?.items?.[count.value]?.uri}`)
         await resumePlayback()
       }
     }
@@ -138,42 +116,33 @@ const togglePlay = async () => {
     setTimeout(() => {
       isTogglingPlay.value = false
       isTransitioning.value = false
-      console.log('Toggle transition complete')
     }, 300)
   }
 }
-
 // 上一首
 const previousTrack = async () => {
   if (!currentSongList.value?.items?.length) return
-
   const newCount = count.value > 0 ? count.value - 1 : currentSongList.value.items.length - 1
   musicStore.setCurrentSong(newCount)
-
   const trackUri = currentSongList.value.items[newCount]?.uri
   if (trackUri) {
     await playTrackByUri(trackUri)
   }
 }
-
 // 下一首
 const nextTrack = async () => {
   if (!currentSongList.value?.items?.length) return
-
   const newCount = count.value < currentSongList.value.items.length - 1 ? count.value + 1 : 0
   musicStore.setCurrentSong(newCount)
-
   const trackUri = currentSongList.value.items[newCount]?.uri
   if (trackUri) {
     await playTrackByUri(trackUri)
   }
 }
-
 // 切换歌词显示
 const toggleLyrics = () => {
   musicStore.toggleLyrics()
 }
-
 // 刷新Token
 const getRefreshToken = async () => {
   const refreshToken = localStorage.getItem('spotify_refresh_token')
@@ -187,7 +156,6 @@ const getRefreshToken = async () => {
   localStorage.setItem('spotify_refresh_token', data.refresh_token)
   localStorage.setItem('spotify_access_token', data.access_token)
 }
-
 // 重连SDK
 const reconnectSdk = () => {
   if (playerSdk.value) {
@@ -195,71 +163,55 @@ const reconnectSdk = () => {
     setTimeout(() => playerSdk.value.connect(), 100)
   }
 }
-
 // 初始化Spotify Web Playback SDK
 const initializeSpotifyPlayer = () => {
   const script = document.createElement('script')
   script.src = 'https://sdk.scdn.co/spotify-player.js'
   script.async = true
   document.body.appendChild(script)
-
   window.onSpotifyWebPlaybackSDKReady = () => {
     const token = getToken()
     if (!token) {
       console.log('No Spotify token found')
       return
     }
-
     const player = new window.Spotify.Player({
       name: 'Vue Music Player',
       getOAuthToken: cb => { cb(token) },
       volume: musicStore.volume
     })
-
     playerSdk.value = player
-
     player.addListener('ready', ({ device_id }) => {
       console.log('Ready with Device ID', device_id)
       musicStore.setDevice(device_id)
     })
-
     player.addListener('not_ready', ({ device_id }) => {
       console.log('Device ID has gone offline', device_id)
       reconnectSdk()
     })
-
     player.addListener('authentication_error', (e) => {
       console.error('Authentication error:', e.message)
       getRefreshToken().then(() => {
         reconnectSdk()
       })
     })
-
     player.addListener('player_state_changed', state => {
       if (!state) return
-
       const isNowPlaying = !state.paused
       const sdkProgress = state.position / 1000
       const currentProgress = musicStore.playerDemo.progress
       const timeSinceResume = Date.now() - resumePlaybackTime.value
-
       // 是否在恢复播放后的保护窗口内（2秒）
       const inResumeProtectionWindow = timeSinceResume < 2000 && resumePlaybackTime.value > 0
-
-      console.log(`[State] paused:${state.paused} pos:${sdkProgress.toFixed(2)} | last:${lastKnownProgress.value.toFixed(2)} | timeSince:${timeSinceResume}ms | inProtection:${inResumeProtectionWindow} | trans:${isTransitioning.value} | stopBar:${musicStore.stopUpdateBar}`)
-
       // 特别标记 SDK 报告 0 的情况
       if (sdkProgress === 0 && !state.paused) {
         console.warn(`⚠️ SDK reports position:0 while playing! lastKnown:${lastKnownProgress.value.toFixed(2)}s resumeTime:${resumePlaybackTime.value}`)
       }
-
       // 计算 SDK 进度与最后已知进度的差异
       const progressDiff = Math.abs(sdkProgress - lastKnownProgress.value)
-
       // === 检测可疑的进度变化 ===
       let isSuspiciousProgress = false
       let suspiciousReason = ''
-
       // 情况1：在保护窗口内，检测异常的进度跳变
       if (inResumeProtectionWindow && lastKnownProgress.value > 0) {
         if (sdkProgress === 0 && lastKnownProgress.value > 1) {
@@ -276,32 +228,26 @@ const initializeSpotifyPlayer = () => {
           suspiciousReason = `可疑跳变: ${lastKnownProgress.value.toFixed(1)}→${sdkProgress.toFixed(1)} (diff=${progressDiff.toFixed(1)}s)`
         }
       }
-
       // 情况2：过渡期内的大幅度进度变化
       if (isTransitioning.value && !state.paused && progressDiff > 10) {
         isSuspiciousProgress = true
         suspiciousReason = `过渡期大幅变化: diff=${progressDiff.toFixed(1)}s`
       }
-
       // === 决定最终使用的进度值 ===
       let finalProgress = currentProgress
       let action = '' // 记录采取的动作
-
       if (isSuspiciousProgress) {
         // 🚫 拒绝可疑进度，保持不变
         finalProgress = currentProgress
         action = `🚫 REJECT (${suspiciousReason})`
-
       } else if (musicStore.stopUpdateBar) {
         // ⏸️ 用户正在拖拽，保持不变
         finalProgress = currentProgress
         action = '⏸️ SKIP (拖拽中)'
-
       } else if (isTransitioning.value) {
         // ⏸️ 过渡期，保持不变
         finalProgress = currentProgress
         action = '⏸️ SKIP (过渡期)'
-
       } else if (inResumeProtectionWindow) {
         // 🛡️ 保护窗口内，只接受合理的进度
         if (progressDiff < 2 || sdkProgress > lastKnownProgress.value) {
@@ -312,7 +258,6 @@ const initializeSpotifyPlayer = () => {
           // 使用上次保存的正确进度，而不是当前可能已被污染的进度
           finalProgress = lastKnownProgress.value
           action = `🛡️ PROTECT (窗口内可疑: diff=${progressDiff.toFixed(2)}s) 保持: ${lastKnownProgress.value.toFixed(2)}s`
-
           // 如果差异超过3秒且不在拖拽中，主动修正SDK位置
           if (progressDiff > 3 && !musicStore.stopUpdateBar && isNowPlaying) {
             console.warn(`🔧 Auto-correcting SDK position from ${sdkProgress.toFixed(2)}s to ${lastKnownProgress.value.toFixed(2)}s`)
@@ -324,16 +269,12 @@ const initializeSpotifyPlayer = () => {
             })
           }
         }
-
       } else {
         // ✅ 正常状态，同步 SDK 进度
         finalProgress = sdkProgress
         lastKnownProgress.value = sdkProgress
         action = '✅ SYNC'
       }
-
-      console.log(`[Action] ${action} -> ${finalProgress.toFixed(2)}s`)
-
       // 更新总时长和播放状态
       musicStore.$patch({
         playerDemo: {
@@ -343,7 +284,6 @@ const initializeSpotifyPlayer = () => {
         },
         isPlayingDemo: isNowPlaying
       })
-
       // 根据播放状态管理定时器
       if (isNowPlaying) {
         // 播放中：启动定时器（如果还没启动）
@@ -355,7 +295,6 @@ const initializeSpotifyPlayer = () => {
               console.log('Skipping progress update (transitioning or dragging)')
               return
             }
-
             try {
               const currentState = await player.getCurrentState()
               if (currentState && !currentState.paused) {
@@ -373,17 +312,14 @@ const initializeSpotifyPlayer = () => {
         stopProgressInterval()
       }
     })
-
     player.connect()
   }
 }
-
 // 格式化艺术家
 const formatArtists = (artists) => {
   if (!artists || !Array.isArray(artists)) return ''
   return artists.map(artist => artist.name).join(', ')
 }
-
 // 格式化时间
 const formatTime = (seconds) => {
   if (!seconds || isNaN(seconds)) return '0:00'
@@ -391,37 +327,42 @@ const formatTime = (seconds) => {
   const secs = Math.floor(seconds % 60)
   return `${mins}:${secs.toString().padStart(2, '0')}`
 }
-
 // 监听音量变化
 watch(() => musicStore.volume, (newVolume) => {
   if (playerSdk.value) {
     playerSdk.value.setVolume(newVolume)
   }
 })
-
 onMounted(() => {
-  initializeSpotifyPlayer()
+    // 添加检查逻辑确保 token 存在
+    const checkTokenAndInitialize = () => {
+        const token = localStorage.getItem('spotify_access_token')
+        if (token) {
+            initializeSpotifyPlayer()
+        } else {
+            // 如果 token 不存在，等待一段时间后再次检查
+            setTimeout(checkTokenAndInitialize, 100)
+        }
+    }
+    checkTokenAndInitialize()
 })
-
 onUnmounted(() => {
   // 清除进度更新定时器
   stopProgressInterval()
-
   // 断开播放器连接
   if (playerSdk.value) {
     playerSdk.value.disconnect()
   }
 })
 </script>
-
 <template>
   <div class="player">
     <div class="player-content">
       <!-- 左侧：歌曲信息 -->
       <div class="song-info">
         <img
-          v-if="currentSong?.album?.images?.[0]?.url"
-          :src="currentSong.album.images[0].url"
+          v-if="currentSong?.album?.images?.[0]?.url||currentSongList?.imgPic"
+          :src="currentSong?.album?.images[0]?.url||currentSongList?.imgPic"
           :alt="currentSong.name"
           class="album-cover"
         >
@@ -433,7 +374,6 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
-
       <!-- 中间：播放控制 -->
       <div class="player-controls">
         <div class="control-buttons">
@@ -447,7 +387,6 @@ onUnmounted(() => {
               </svg>
             </SvgIcon>
           </ButtonIcon>
-
           <ButtonIcon class="play-button" @click="togglePlay" :title="isPlaying ? '暂停' : '播放'">
             <SvgIcon>
               <svg v-if="!isPlaying" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
@@ -464,7 +403,6 @@ onUnmounted(() => {
               </svg>
             </SvgIcon>
           </ButtonIcon>
-
           <ButtonIcon @click="nextTrack" title="下一首">
             <SvgIcon>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -476,14 +414,12 @@ onUnmounted(() => {
             </SvgIcon>
           </ButtonIcon>
         </div>
-
         <div class="progress-wrapper">
           <span class="time-display">{{ formatTime(musicStore.progress) }}</span>
           <ProgressBar />
           <span class="time-display">{{ formatTime(musicStore.currentTrackDuration) }}</span>
         </div>
       </div>
-
       <!-- 右侧：音量和其他控制 -->
       <div class="right-controls">
         <ButtonIcon @click="toggleLyrics" title="歌词">
@@ -501,7 +437,6 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
-
 <style scoped>
 .player {
   position: fixed;
@@ -514,7 +449,6 @@ onUnmounted(() => {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   z-index: 100;
 }
-
 .player-content {
   display: flex;
   align-items: center;
@@ -522,13 +456,11 @@ onUnmounted(() => {
   padding: 0 10vw;
   gap: 20px;
 }
-
 @media (max-width: 1336px) {
   .player-content {
     padding: 0 5vw;
   }
 }
-
 .song-info {
   display: flex;
   align-items: center;
@@ -536,7 +468,6 @@ onUnmounted(() => {
   flex: 1;
   min-width: 0;
 }
-
 .album-cover,
 .album-cover-placeholder {
   width: 56px;
@@ -544,16 +475,13 @@ onUnmounted(() => {
   border-radius: 8px;
   object-fit: cover;
 }
-
 .album-cover-placeholder {
   background: var(--color-secondary-bg);
 }
-
 .song-details {
   min-width: 0;
   flex: 1;
 }
-
 .song-name {
   font-size: 14px;
   font-weight: 600;
@@ -562,7 +490,6 @@ onUnmounted(() => {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .song-artist {
   font-size: 12px;
   color: var(--color-secondary);
@@ -571,7 +498,6 @@ onUnmounted(() => {
   text-overflow: ellipsis;
   margin-top: 4px;
 }
-
 .player-controls {
   display: flex;
   flex-direction: column;
@@ -579,37 +505,31 @@ onUnmounted(() => {
   gap: 8px;
   flex: 2;
 }
-
 .control-buttons {
   display: flex;
   align-items: center;
   gap: 8px;
 }
-
 .play-button {
   width: 40px;
   height: 40px;
 }
-
 .play-button :deep(.svg-icon) {
   width: 20px;
   height: 20px;
 }
-
 .progress-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
 }
-
 .time-display {
   font-size: 11px;
   color: var(--color-secondary);
   min-width: 40px;
   text-align: center;
 }
-
 .right-controls {
   display: flex;
   align-items: center;
@@ -617,16 +537,13 @@ onUnmounted(() => {
   flex: 1;
   justify-content: flex-end;
 }
-
 @media (max-width: 768px) {
   .song-info {
     flex: 0 0 auto;
   }
-
   .player-controls {
     flex: 1;
   }
-
   .right-controls {
     flex: 0 0 auto;
   }
