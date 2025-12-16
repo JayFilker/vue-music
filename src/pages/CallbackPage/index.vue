@@ -13,7 +13,7 @@ onMounted(async () => {
         // 这里应该处理认证逻辑
         console.log('Auth code:', code)
         // const response = await axios.post('http://localhost:3000/api/exchange-token', { code })
-        const response = await axios.post('https://musicplayernodejs-production.up.railway.app/api/exchange-token', { code })
+        const response = await axios.post('https://blog-api-production-3657.up.railway.app/api/exchange-token', { code })
         console.log(response.data)
         localStorage.setItem('spotify_access_token', response.data.access_token)
         localStorage.setItem('spotify_refresh_token', response.data.refresh_token)
