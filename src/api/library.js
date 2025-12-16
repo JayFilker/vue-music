@@ -2,8 +2,8 @@ import { get } from './http.js'
 import axios from 'axios'
 
 // 自定义后端服务器 URL（与 React 版本相同）
-// const CUSTOM_API_BASE = 'https://musicplayernodejs-production.up.railway.app'
-const CUSTOM_API_BASE = 'http://localhost:3000'
+const CUSTOM_API_BASE = 'https://musicplayernodejs-production.up.railway.app'
+// const CUSTOM_API_BASE = 'http://localhost:3000'
 
 // 创建带认证的 axios 实例用于自定义后端
 const customClient = axios.create({
